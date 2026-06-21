@@ -14,16 +14,361 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      event_registrations: {
+        Row: {
+          created_at: string
+          event_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          cover_image: string | null
+          created_at: string
+          description: string | null
+          event_date: string
+          id: string
+          speaker: string | null
+          title: string
+        }
+        Insert: {
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          event_date: string
+          id?: string
+          speaker?: string | null
+          title: string
+        }
+        Update: {
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          id?: string
+          speaker?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          razorpay_signature: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          category: Database["public"]["Enums"]["post_category"]
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["post_category"]
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["post_category"]
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          bio: string | null
+          created_at: string
+          full_name: string | null
+          funding_status: string | null
+          id: string
+          industry: string | null
+          is_paid: boolean
+          linkedin_url: string | null
+          looking_for: string | null
+          profile_image: string | null
+          skills: string[] | null
+          startup_name: string | null
+          startup_stage: string | null
+          startup_website: string | null
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          full_name?: string | null
+          funding_status?: string | null
+          id: string
+          industry?: string | null
+          is_paid?: boolean
+          linkedin_url?: string | null
+          looking_for?: string | null
+          profile_image?: string | null
+          skills?: string[] | null
+          startup_name?: string | null
+          startup_stage?: string | null
+          startup_website?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          full_name?: string | null
+          funding_status?: string | null
+          id?: string
+          industry?: string | null
+          is_paid?: boolean
+          linkedin_url?: string | null
+          looking_for?: string | null
+          profile_image?: string | null
+          skills?: string[] | null
+          startup_name?: string | null
+          startup_stage?: string | null
+          startup_website?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      resources: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          file_url: string
+          id: string
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          file_url: string
+          id?: string
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          file_url?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      startup_upvotes: {
+        Row: {
+          created_at: string
+          startup_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          startup_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          startup_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "startup_upvotes_startup_id_fkey"
+            columns: ["startup_id"]
+            isOneToOne: false
+            referencedRelation: "startups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      startups: {
+        Row: {
+          created_at: string
+          description: string | null
+          founder_id: string
+          id: string
+          industry: string | null
+          launch_date: string | null
+          startup_name: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          founder_id: string
+          id?: string
+          industry?: string | null
+          launch_date?: string | null
+          startup_name: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          founder_id?: string
+          id?: string
+          industry?: string | null
+          launch_date?: string | null
+          startup_name?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "founder" | "mentor" | "investor" | "admin"
+      payment_status: "pending" | "success" | "failed" | "refunded"
+      post_category:
+        | "product_launch"
+        | "validation"
+        | "saas_growth"
+        | "ai_tools"
+        | "fundraising"
+        | "hiring"
+        | "partnerships"
+        | "general"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +495,19 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["founder", "mentor", "investor", "admin"],
+      payment_status: ["pending", "success", "failed", "refunded"],
+      post_category: [
+        "product_launch",
+        "validation",
+        "saas_growth",
+        "ai_tools",
+        "fundraising",
+        "hiring",
+        "partnerships",
+        "general",
+      ],
+    },
   },
 } as const
