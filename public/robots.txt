@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /feed
+Disallow: /profile
+Disallow: /resources
+Disallow: /showcase
+Disallow: /events
+Disallow: /members
+Disallow: /marketplace
+Disallow: /auth
+Disallow: /reset-password
+
+Sitemap: /sitemap.xml
