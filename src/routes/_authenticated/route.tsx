@@ -13,6 +13,16 @@ import {
   LogOut,
 } from "lucide-react";
 
+/**
+ * Auth gate for every `/dashboard`, `/feed`, `/profile`, etc. route.
+ *
+ * `beforeLoad` runs before children mount and redirects unauthenticated
+ * users to `/auth`. `ssr: false` keeps this client-only — the Supabase
+ * session lives in `localStorage`, which is not available during SSR.
+ *
+ * The layout renders the sidebar (desktop) / top nav (mobile) and an
+ * `<Outlet />` for the matched child route.
+ */
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
@@ -22,6 +32,7 @@ export const Route = createFileRoute("/_authenticated")({
   },
   component: AuthenticatedLayout,
 });
+
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },

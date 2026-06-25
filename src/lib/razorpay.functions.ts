@@ -1,9 +1,30 @@
+/**
+ * Razorpay payment server functions.
+ *
+ * Flow (no webhook — verification is signature-based at return time):
+ *   1. Client calls `createRazorpayOrder` → server creates an order via
+ *      Razorpay REST and inserts a `payments` row with status `pending`.
+ *   2. Client opens the Razorpay checkout modal with the returned `orderId`.
+ *   3. On success, client calls `verifyRazorpayPayment` with the three
+ *      `razorpay_*` fields. Server verifies the HMAC-SHA256 signature
+ *      (orderId|paymentId, KEY_SECRET), then flips `payments.status` to
+ *      `success` and `profiles.is_paid` to `true` via the admin client.
+ *
+ * Secrets (server-only env vars, read inside `.handler()`):
+ *   - RAZORPAY_KEY_ID
+ *   - RAZORPAY_KEY_SECRET
+ *
+ * Both functions are gated by `requireSupabaseAuth` — never call from a
+ * public route loader (SSR/prerender has no bearer token and will 401).
+ */
 import { createServerFn } from "@tanstack/react-start";
 import { createHmac } from "crypto";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const AMOUNT_PAISE = 59900; // ₹599
+/** ₹599 lifetime access, expressed in paise (Razorpay's unit). */
+const AMOUNT_PAISE = 59900;
 const CURRENCY = "INR";
+
 
 export const createRazorpayOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
