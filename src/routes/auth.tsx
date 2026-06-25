@@ -56,7 +56,7 @@ function AuthPage() {
       if (mode === "signup") {
         const nameOk = nameSchema.safeParse(name);
         if (!nameOk.success) throw new Error(nameOk.error.errors[0].message);
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: emailOk.data,
           password: pwOk.data,
           options: {
@@ -65,11 +65,23 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        if (!data.session) {
+          // Email-confirmation flow: no session is issued until the user clicks the link.
+          toast.success("Account created. Check your email to confirm and then sign in.");
+          setMode("signin");
+          setPassword("");
+          return;
+        }
         toast.success("Account created. Welcome to FounderHunt.");
         navigate({ to: "/dashboard" });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email: emailOk.data, password: pwOk.data });
-        if (error) throw error;
+        if (error) {
+          if (error.message.toLowerCase().includes("email not confirmed")) {
+            throw new Error("Please confirm your email first — check your inbox for the verification link.");
+          }
+          throw error;
+        }
         navigate({ to: "/dashboard" });
       }
     } catch (err) {
