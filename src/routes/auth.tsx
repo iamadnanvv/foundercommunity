@@ -187,14 +187,18 @@ function AuthPage() {
             {mode === "signin" && "Welcome back"}
             {mode === "signup" && "Create your account"}
             {mode === "forgot" && "Reset your password"}
+            {mode === "phone" && (otpSent ? "Enter your code" : "Sign in with phone")}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {mode === "signin" && "Sign in to your founder account."}
             {mode === "signup" && "Start your lifetime founder journey."}
             {mode === "forgot" && "Enter your email — we'll send a reset link."}
+            {mode === "phone" && (otpSent
+              ? `We sent a 6-digit code to ${phone}.`
+              : "We'll text you a one-time code.")}
           </p>
 
-          {mode !== "forgot" && (
+          {mode !== "forgot" && mode !== "phone" && (
             <button
               type="button"
               onClick={handleGoogle}
@@ -206,47 +210,96 @@ function AuthPage() {
             </button>
           )}
 
-          {mode !== "forgot" && (
+          {mode !== "forgot" && mode !== "phone" && (
+            <button
+              type="button"
+              onClick={() => switchMode("phone")}
+              disabled={loading}
+              className="mt-3 flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-foreground transition hover:border-gold/50 disabled:opacity-50"
+            >
+              📱 Continue with phone
+            </button>
+          )}
+
+          {mode !== "forgot" && mode !== "phone" && (
             <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-widest text-muted-foreground">
               <div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" />
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === "signup" && (
-              <Field label="Full name" value={name} onChange={setName} type="text" placeholder="Jane Founder" />
-            )}
-            <Field label="Email" value={email} onChange={setEmail} type="email" placeholder="you@startup.com" />
-            {mode !== "forgot" && (
-              <Field label="Password" value={password} onChange={setPassword} type="password" placeholder="At least 8 characters" />
-            )}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-xl bg-gold py-3 text-sm font-bold text-background transition hover:brightness-110 disabled:opacity-50"
-            >
-              {loading ? "Please wait…" : mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Send reset link"}
-            </button>
-          </form>
+          {mode === "phone" ? (
+            <form onSubmit={handlePhone} className="mt-8 space-y-4">
+              <Field
+                label="Phone number"
+                value={phone}
+                onChange={setPhone}
+                type="tel"
+                placeholder="+14155552671"
+              />
+              {otpSent && (
+                <Field
+                  label="Verification code"
+                  value={otp}
+                  onChange={setOtp}
+                  type="text"
+                  placeholder="123456"
+                />
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-gold py-3 text-sm font-bold text-background transition hover:brightness-110 disabled:opacity-50"
+              >
+                {loading ? "Please wait…" : otpSent ? "Verify & sign in" : "Send code"}
+              </button>
+              {otpSent && (
+                <button
+                  type="button"
+                  onClick={() => { setOtpSent(false); setOtp(""); }}
+                  className="w-full text-center text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Use a different number
+                </button>
+              )}
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {mode === "signup" && (
+                <Field label="Full name" value={name} onChange={setName} type="text" placeholder="Jane Founder" />
+              )}
+              <Field label="Email" value={email} onChange={setEmail} type="email" placeholder="you@startup.com" />
+              {mode !== "forgot" && (
+                <Field label="Password" value={password} onChange={setPassword} type="password" placeholder="At least 8 characters" />
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-gold py-3 text-sm font-bold text-background transition hover:brightness-110 disabled:opacity-50"
+              >
+                {loading ? "Please wait…" : mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Send reset link"}
+              </button>
+            </form>
+          )}
 
           <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
             {mode === "signin" ? (
               <>
-                <button onClick={() => setMode("forgot")} className="hover:text-foreground">Forgot password?</button>
-                <button onClick={() => setMode("signup")} className="hover:text-foreground">
+                <button onClick={() => switchMode("forgot")} className="hover:text-foreground">Forgot password?</button>
+                <button onClick={() => switchMode("signup")} className="hover:text-foreground">
                   New here? <span className="text-gold">Create account</span>
                 </button>
               </>
             ) : mode === "signup" ? (
-              <button onClick={() => setMode("signin")} className="ml-auto hover:text-foreground">
+              <button onClick={() => switchMode("signin")} className="ml-auto hover:text-foreground">
                 Already a member? <span className="text-gold">Sign in</span>
               </button>
             ) : (
-              <button onClick={() => setMode("signin")} className="ml-auto hover:text-foreground">
+              <button onClick={() => switchMode("signin")} className="ml-auto hover:text-foreground">
                 ← Back to sign in
               </button>
             )}
           </div>
+
         </div>
       </div>
     </div>
