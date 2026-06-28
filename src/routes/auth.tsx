@@ -18,6 +18,15 @@ export const Route = createFileRoute("/auth")({
 const emailSchema = z.string().trim().email("Enter a valid email").max(255);
 const passwordSchema = z.string().min(8, "Min 8 characters").max(72);
 const nameSchema = z.string().trim().min(2, "Enter your name").max(80);
+// E.164 format: +<country code><number>, total 8–16 digits.
+const phoneSchema = z
+  .string()
+  .trim()
+  .regex(/^\+[1-9]\d{7,15}$/, "Use E.164 format, e.g. +14155552671");
+const otpSchema = z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit code");
+
+type Mode = "signin" | "signup" | "forgot" | "phone";
+
 
 function AuthPage() {
   const navigate = useNavigate();
