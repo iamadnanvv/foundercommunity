@@ -18,13 +18,25 @@ export const Route = createFileRoute("/auth")({
 const emailSchema = z.string().trim().email("Enter a valid email").max(255);
 const passwordSchema = z.string().min(8, "Min 8 characters").max(72);
 const nameSchema = z.string().trim().min(2, "Enter your name").max(80);
+// E.164 format: +<country code><number>, total 8–16 digits.
+const phoneSchema = z
+  .string()
+  .trim()
+  .regex(/^\+[1-9]\d{7,15}$/, "Use E.164 format, e.g. +14155552671");
+const otpSchema = z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit code");
+
+type Mode = "signin" | "signup" | "forgot" | "phone";
+
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
+  const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -32,6 +44,41 @@ function AuthPage() {
       if (data.session) navigate({ to: "/dashboard" });
     });
   }, [navigate]);
+
+  const handlePhone = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const phoneOk = phoneSchema.safeParse(phone);
+      if (!phoneOk.success) throw new Error(phoneOk.error.errors[0].message);
+
+      if (!otpSent) {
+        // Sends an SMS OTP. `shouldCreateUser: true` creates a user on first sign-in.
+        const { error } = await supabase.auth.signInWithOtp({
+          phone: phoneOk.data,
+          options: { shouldCreateUser: true },
+        });
+        if (error) throw error;
+        setOtpSent(true);
+        toast.success("Code sent. Check your messages.");
+      } else {
+        const otpOk = otpSchema.safeParse(otp);
+        if (!otpOk.success) throw new Error(otpOk.error.errors[0].message);
+        const { error } = await supabase.auth.verifyOtp({
+          phone: phoneOk.data,
+          token: otpOk.data,
+          type: "sms",
+        });
+        if (error) throw error;
+        toast.success("Welcome to FounderHunt.");
+        navigate({ to: "/dashboard" });
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Phone sign-in failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +113,6 @@ function AuthPage() {
         });
         if (error) throw error;
         if (!data.session) {
-          // Email-confirmation flow: no session is issued until the user clicks the link.
           toast.success("Account created. Check your email to confirm and then sign in.");
           setMode("signin");
           setPassword("");
@@ -103,6 +149,13 @@ function AuthPage() {
     navigate({ to: "/dashboard" });
   };
 
+  const switchMode = (next: Mode) => {
+    setMode(next);
+    setOtp("");
+    setOtpSent(false);
+  };
+
+
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="hidden flex-col justify-between bg-surface p-12 lg:flex">
@@ -134,14 +187,18 @@ function AuthPage() {
             {mode === "signin" && "Welcome back"}
             {mode === "signup" && "Create your account"}
             {mode === "forgot" && "Reset your password"}
+            {mode === "phone" && (otpSent ? "Enter your code" : "Sign in with phone")}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {mode === "signin" && "Sign in to your founder account."}
             {mode === "signup" && "Start your lifetime founder journey."}
             {mode === "forgot" && "Enter your email — we'll send a reset link."}
+            {mode === "phone" && (otpSent
+              ? `We sent a 6-digit code to ${phone}.`
+              : "We'll text you a one-time code.")}
           </p>
 
-          {mode !== "forgot" && (
+          {mode !== "forgot" && mode !== "phone" && (
             <button
               type="button"
               onClick={handleGoogle}
@@ -153,47 +210,96 @@ function AuthPage() {
             </button>
           )}
 
-          {mode !== "forgot" && (
+          {mode !== "forgot" && mode !== "phone" && (
+            <button
+              type="button"
+              onClick={() => switchMode("phone")}
+              disabled={loading}
+              className="mt-3 flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-foreground transition hover:border-gold/50 disabled:opacity-50"
+            >
+              📱 Continue with phone
+            </button>
+          )}
+
+          {mode !== "forgot" && mode !== "phone" && (
             <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-widest text-muted-foreground">
               <div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" />
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === "signup" && (
-              <Field label="Full name" value={name} onChange={setName} type="text" placeholder="Jane Founder" />
-            )}
-            <Field label="Email" value={email} onChange={setEmail} type="email" placeholder="you@startup.com" />
-            {mode !== "forgot" && (
-              <Field label="Password" value={password} onChange={setPassword} type="password" placeholder="At least 8 characters" />
-            )}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-xl bg-gold py-3 text-sm font-bold text-background transition hover:brightness-110 disabled:opacity-50"
-            >
-              {loading ? "Please wait…" : mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Send reset link"}
-            </button>
-          </form>
+          {mode === "phone" ? (
+            <form onSubmit={handlePhone} className="mt-8 space-y-4">
+              <Field
+                label="Phone number"
+                value={phone}
+                onChange={setPhone}
+                type="tel"
+                placeholder="+14155552671"
+              />
+              {otpSent && (
+                <Field
+                  label="Verification code"
+                  value={otp}
+                  onChange={setOtp}
+                  type="text"
+                  placeholder="123456"
+                />
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-gold py-3 text-sm font-bold text-background transition hover:brightness-110 disabled:opacity-50"
+              >
+                {loading ? "Please wait…" : otpSent ? "Verify & sign in" : "Send code"}
+              </button>
+              {otpSent && (
+                <button
+                  type="button"
+                  onClick={() => { setOtpSent(false); setOtp(""); }}
+                  className="w-full text-center text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Use a different number
+                </button>
+              )}
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {mode === "signup" && (
+                <Field label="Full name" value={name} onChange={setName} type="text" placeholder="Jane Founder" />
+              )}
+              <Field label="Email" value={email} onChange={setEmail} type="email" placeholder="you@startup.com" />
+              {mode !== "forgot" && (
+                <Field label="Password" value={password} onChange={setPassword} type="password" placeholder="At least 8 characters" />
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-gold py-3 text-sm font-bold text-background transition hover:brightness-110 disabled:opacity-50"
+              >
+                {loading ? "Please wait…" : mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Send reset link"}
+              </button>
+            </form>
+          )}
 
           <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
             {mode === "signin" ? (
               <>
-                <button onClick={() => setMode("forgot")} className="hover:text-foreground">Forgot password?</button>
-                <button onClick={() => setMode("signup")} className="hover:text-foreground">
+                <button onClick={() => switchMode("forgot")} className="hover:text-foreground">Forgot password?</button>
+                <button onClick={() => switchMode("signup")} className="hover:text-foreground">
                   New here? <span className="text-gold">Create account</span>
                 </button>
               </>
             ) : mode === "signup" ? (
-              <button onClick={() => setMode("signin")} className="ml-auto hover:text-foreground">
+              <button onClick={() => switchMode("signin")} className="ml-auto hover:text-foreground">
                 Already a member? <span className="text-gold">Sign in</span>
               </button>
             ) : (
-              <button onClick={() => setMode("signin")} className="ml-auto hover:text-foreground">
+              <button onClick={() => switchMode("signin")} className="ml-auto hover:text-foreground">
                 ← Back to sign in
               </button>
             )}
           </div>
+
         </div>
       </div>
     </div>
