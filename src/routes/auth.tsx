@@ -30,10 +30,13 @@ type Mode = "signin" | "signup" | "forgot" | "phone";
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
+  const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -41,6 +44,41 @@ function AuthPage() {
       if (data.session) navigate({ to: "/dashboard" });
     });
   }, [navigate]);
+
+  const handlePhone = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const phoneOk = phoneSchema.safeParse(phone);
+      if (!phoneOk.success) throw new Error(phoneOk.error.errors[0].message);
+
+      if (!otpSent) {
+        // Sends an SMS OTP. `shouldCreateUser: true` creates a user on first sign-in.
+        const { error } = await supabase.auth.signInWithOtp({
+          phone: phoneOk.data,
+          options: { shouldCreateUser: true },
+        });
+        if (error) throw error;
+        setOtpSent(true);
+        toast.success("Code sent. Check your messages.");
+      } else {
+        const otpOk = otpSchema.safeParse(otp);
+        if (!otpOk.success) throw new Error(otpOk.error.errors[0].message);
+        const { error } = await supabase.auth.verifyOtp({
+          phone: phoneOk.data,
+          token: otpOk.data,
+          type: "sms",
+        });
+        if (error) throw error;
+        toast.success("Welcome to FounderHunt.");
+        navigate({ to: "/dashboard" });
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Phone sign-in failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +113,6 @@ function AuthPage() {
         });
         if (error) throw error;
         if (!data.session) {
-          // Email-confirmation flow: no session is issued until the user clicks the link.
           toast.success("Account created. Check your email to confirm and then sign in.");
           setMode("signin");
           setPassword("");
@@ -111,6 +148,13 @@ function AuthPage() {
     if (result.redirected) return;
     navigate({ to: "/dashboard" });
   };
+
+  const switchMode = (next: Mode) => {
+    setMode(next);
+    setOtp("");
+    setOtpSent(false);
+  };
+
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
