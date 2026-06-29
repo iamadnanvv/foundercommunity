@@ -198,17 +198,8 @@ function AuthPage() {
               : "We'll text you a one-time code.")}
           </p>
 
-          {mode !== "forgot" && mode !== "phone" && (
-            <button
-              type="button"
-              onClick={handleGoogle}
-              disabled={loading}
-              className="mt-8 flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-foreground transition hover:border-gold/50 disabled:opacity-50"
-            >
-              <svg className="size-5" viewBox="0 0 24 24"><path fill="#fff" d="M21.35 11.1h-9.17v2.94h5.27c-.24 1.49-1.71 4.37-5.27 4.37-3.17 0-5.76-2.62-5.76-5.86s2.59-5.86 5.76-5.86c1.81 0 3.02.77 3.71 1.43l2.53-2.44C16.86 4.18 14.79 3.2 12.18 3.2c-4.94 0-8.94 4-8.94 8.94s4 8.94 8.94 8.94c5.16 0 8.58-3.63 8.58-8.74 0-.59-.06-1.04-.41-1.24z" /></svg>
-              Continue with Google
-            </button>
-          )}
+
+
 
           {mode !== "forgot" && mode !== "phone" && (
             <button
