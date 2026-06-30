@@ -60,8 +60,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "FounderHuntCommunity — Build Faster. Validate Smarter. Scale Together." },
       { name: "twitter:description", content: "An exclusive community of SaaS and AI founders. Lifetime access for ₹599." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/baa64589-1848-4725-937f-6adfc721464a" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/baa64589-1848-4725-937f-6adfc721464a" },
+      { property: "og:image", content: "https://founder-nest-io.lovable.app/og-image.jpg" },
+      { name: "twitter:image", content: "https://founder-nest-io.lovable.app/og-image.jpg" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
