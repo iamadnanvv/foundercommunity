@@ -59,12 +59,14 @@ function AuthenticatedLayout() {
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-surface p-5 lg:flex">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r-2 border-foreground bg-surface p-5 lg:flex">
         <Link to="/dashboard" className="mb-8 flex items-center gap-2">
-          <div className="grid size-8 place-items-center rounded-lg bg-gold">
-            <div className="size-3 rounded-full bg-background" />
+          <div className="grid size-9 place-items-center border-2 border-foreground bg-acid">
+            <span className="font-mono text-sm font-bold text-background">FH</span>
           </div>
-          <span className="font-display text-lg font-bold text-foreground">FounderHunt</span>
+          <span className="font-display text-lg font-bold text-foreground">
+            founder<span className="text-acid">/</span>hunt
+          </span>
         </Link>
         <nav className="flex-1 space-y-1">
           {navItems.map((item) => {
@@ -74,10 +76,10 @@ function AuthenticatedLayout() {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 border-2 px-3 py-2.5 font-mono text-xs font-bold uppercase tracking-wider transition-all ${
                   active
-                    ? "bg-gold-soft text-gold"
-                    : "text-muted-foreground hover:bg-background hover:text-foreground"
+                    ? "border-foreground bg-acid text-background shadow-brutal-sm"
+                    : "border-transparent text-muted-foreground hover:border-foreground hover:bg-background hover:text-foreground"
                 }`}
               >
                 <Icon className="size-4" />

@@ -33,40 +33,47 @@
   --color-surface: var(--surface);
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
-  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --color-acid: var(--acid);
+  --color-hot: var(--hot);
+  --color-electric: var(--electric);
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 :root {
-  --radius: 0.875rem;
-  /* Premium dark studio — black, white, gold */
-  --background: oklch(0.13 0.005 270);
-  --foreground: oklch(0.985 0 0);
-  --surface: oklch(0.17 0.006 270);
-  --card: oklch(0.17 0.006 270);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.17 0.006 270);
-  --popover-foreground: oklch(0.985 0 0);
-  --gold: oklch(0.78 0.13 85);
-  --gold-soft: oklch(0.78 0.13 85 / 0.15);
-  --primary: oklch(0.78 0.13 85);
-  --primary-foreground: oklch(0.13 0.005 270);
-  --secondary: oklch(0.22 0.006 270);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.22 0.006 270);
-  --muted-foreground: oklch(0.62 0.01 270);
-  --accent: oklch(0.78 0.13 85);
-  --accent-foreground: oklch(0.13 0.005 270);
-  --destructive: oklch(0.62 0.22 25);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.985 0 0 / 0.08);
-  --input: oklch(0.985 0 0 / 0.1);
-  --ring: oklch(0.78 0.13 85);
+  --radius: 0.25rem;
+  /* Brutalist Gen-Z: bone-white ink on near-black, acid green + hot magenta + gold */
+  --background: oklch(0.11 0.005 260);
+  --foreground: oklch(0.98 0.005 90);
+  --surface: oklch(0.15 0.006 260);
+  --card: oklch(0.15 0.006 260);
+  --card-foreground: oklch(0.98 0.005 90);
+  --popover: oklch(0.15 0.006 260);
+  --popover-foreground: oklch(0.98 0.005 90);
+  --gold: oklch(0.85 0.17 90);
+  --gold-soft: oklch(0.85 0.17 90 / 0.18);
+  --acid: oklch(0.90 0.24 130);
+  --hot: oklch(0.72 0.28 12);
+  --electric: oklch(0.72 0.20 260);
+  --primary: oklch(0.85 0.17 90);
+  --primary-foreground: oklch(0.11 0.005 260);
+  --secondary: oklch(0.22 0.006 260);
+  --secondary-foreground: oklch(0.98 0.005 90);
+  --muted: oklch(0.22 0.006 260);
+  --muted-foreground: oklch(0.68 0.01 260);
+  --accent: oklch(0.90 0.24 130);
+  --accent-foreground: oklch(0.11 0.005 260);
+  --destructive: oklch(0.65 0.24 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.98 0 0 / 0.14);
+  --input: oklch(0.98 0 0 / 0.1);
+  --ring: oklch(0.90 0.24 130);
 }
 
 .dark {
-  --background: oklch(0.13 0.005 270);
-  --foreground: oklch(0.985 0 0);
+  --background: oklch(0.11 0.005 260);
+  --foreground: oklch(0.98 0.005 90);
 }
 
 @layer base {
@@ -79,25 +86,86 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
+  /* Grain overlay — brutalist texture */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
   ::selection {
-    background: var(--gold);
+    background: var(--acid);
     color: var(--background);
   }
 }
 
 @utility font-display {
   font-family: var(--font-display);
+  font-feature-settings: "ss01","ss02";
+}
+@utility font-mono {
+  font-family: var(--font-mono);
 }
 
-@utility text-gold {
-  color: var(--gold);
+@utility text-gold { color: var(--gold); }
+@utility bg-gold { background-color: var(--gold); }
+@utility border-gold { border-color: var(--gold); }
+@utility text-acid { color: var(--acid); }
+@utility bg-acid { background-color: var(--acid); }
+@utility border-acid { border-color: var(--acid); }
+@utility text-hot { color: var(--hot); }
+@utility bg-hot { background-color: var(--hot); }
+@utility border-hot { border-color: var(--hot); }
+@utility text-electric { color: var(--electric); }
+@utility bg-electric { background-color: var(--electric); }
+@utility bg-surface { background-color: var(--surface); }
+
+/* Brutalist chunky offset shadow */
+@utility shadow-brutal {
+  box-shadow: 6px 6px 0 0 var(--foreground);
 }
-@utility bg-gold {
-  background-color: var(--gold);
+@utility shadow-brutal-acid {
+  box-shadow: 6px 6px 0 0 var(--acid);
 }
-@utility border-gold {
-  border-color: var(--gold);
+@utility shadow-brutal-hot {
+  box-shadow: 6px 6px 0 0 var(--hot);
 }
-@utility bg-surface {
-  background-color: var(--surface);
+@utility shadow-brutal-gold {
+  box-shadow: 6px 6px 0 0 var(--gold);
+}
+@utility shadow-brutal-sm {
+  box-shadow: 3px 3px 0 0 var(--foreground);
+}
+
+/* Diagonal stripe pattern for tape/sticker vibe */
+@utility bg-stripes {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--foreground) 0 2px,
+    transparent 2px 10px
+  );
+}
+
+/* Ticker/marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@utility animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes glitch {
+  0%,100% { transform: translate(0,0); }
+  20% { transform: translate(-1px,1px); }
+  40% { transform: translate(1px,-1px); }
+  60% { transform: translate(-1px,-1px); }
+  80% { transform: translate(1px,1px); }
+}
+@utility animate-glitch {
+  animation: glitch 3s infinite;
 }
